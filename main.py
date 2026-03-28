@@ -8,7 +8,6 @@ TOKEN = os.getenv("BOT_TOKEN")
 
 bot = telebot.TeleBot(TOKEN)
 
-# ВАЖНО — явно указываем папку templates
 app = Flask(__name__, template_folder="templates")
 
 # --- САЙТ ---
@@ -36,12 +35,14 @@ def start(message):
         reply_markup=markup
     )
 
-# --- ЗАПУСК БОТА ---
 def run_bot():
     bot.infinity_polling()
 
-# --- СТАРТ ---
+# 🔥 ВАЖНО — запускаем ТОЛЬКО ОДИН РАЗ
 if __name__ == "__main__":
     threading.Thread(target=run_bot).start()
+
     port = int(os.environ.get("PORT", 8080))
+    print("PORT =", port)
+
     app.run(host="0.0.0.0", port=port)
