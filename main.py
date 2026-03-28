@@ -31,7 +31,11 @@ def start(message):
     bot.send_message(message.chat.id, "Жми кнопку 👇", reply_markup=markup)
 
 def run_bot():
-    bot.infinity_polling()
+    while True:
+        try:
+            bot.infinity_polling(timeout=10, long_polling_timeout=5)
+        except Exception as e:
+            print("Ошибка:", e)
 
 if __name__ == "__main__":
     threading.Thread(target=run_bot).start()
