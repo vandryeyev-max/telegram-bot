@@ -5,6 +5,7 @@ from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 import threading
 
 TOKEN = os.getenv("BOT_TOKEN")
+
 bot = telebot.TeleBot(TOKEN)
 
 app = Flask(__name__)
@@ -28,14 +29,15 @@ def start(message):
 
     markup.add(btn)
 
-    bot.send_message(message.chat.id, "Жми кнопку 👇", reply_markup=markup)
+    bot.send_message(
+        message.chat.id,
+        "Жми кнопку 👇",
+        reply_markup=markup
+    )
 
 def run_bot():
-    while True:
-        try:
-            bot.infinity_polling(timeout=10, long_polling_timeout=5)
-        except Exception as e:
-            print("Ошибка:", e)
+    print("BOT STARTED")
+    bot.infinity_polling(skip_pending=True)
 
 if __name__ == "__main__":
     threading.Thread(target=run_bot).start()
