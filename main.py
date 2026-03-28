@@ -2,6 +2,7 @@ import telebot
 import os
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 from flask import Flask, render_template
+import threading
 
 TOKEN = os.getenv("BOT_TOKEN")
 
@@ -34,12 +35,9 @@ def start(message):
     )
 
 # --- ЗАПУСК ---
+def run_bot():
+    bot.infinity_polling()
+
 if __name__ == "__main__":
-    import threading
-
-    def run_bot():
-        bot.infinity_polling()
-
     threading.Thread(target=run_bot).start()
-
-    app.run(host="0.0.0.0", port=8080)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
