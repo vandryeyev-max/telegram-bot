@@ -19,7 +19,7 @@ def index():
 def start(message):
     markup = InlineKeyboardMarkup()
 
-    web_app = WebAppInfo("https://production-b86b.up.railway.app")  # ← твоя ссылка
+    web_app = WebAppInfo("https://production-b86b.up.railway.app")
 
     button = InlineKeyboardButton(
         text="🎰 Играть",
@@ -34,7 +34,7 @@ def start(message):
         reply_markup=markup
     )
 
-# --- ЗАПУСК ---
+# --- ЗАПУСК БОТА ---
 def run_bot():
     bot.infinity_polling()
 
@@ -42,4 +42,5 @@ threading.Thread(target=run_bot).start()
 
 print("BOT + SITE STARTED")
 
-app.run(host="0.0.0.0", port=8080)
+# ❗ ВАЖНО — ПОРТ
+app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
