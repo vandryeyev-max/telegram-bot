@@ -9,12 +9,10 @@ TOKEN = os.getenv("BOT_TOKEN")
 bot = telebot.TeleBot(TOKEN)
 app = Flask(__name__)
 
-# --- САЙТ ---
 @app.route("/")
 def index():
     return render_template("index.html")
 
-# --- БОТ ---
 @bot.message_handler(commands=['start'])
 def start(message):
     markup = InlineKeyboardMarkup()
@@ -34,10 +32,11 @@ def start(message):
         reply_markup=markup
     )
 
-# --- ЗАПУСК ---
 def run_bot():
     bot.infinity_polling()
 
 if __name__ == "__main__":
     threading.Thread(target=run_bot).start()
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
+
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host="0.0.0.0", port=port)
