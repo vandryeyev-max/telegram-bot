@@ -14,7 +14,7 @@ app = Flask(__name__, template_folder="templates")
 # --- САЙТ ---
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return "SITE WORKING"
 
 # --- БОТ ---
 @bot.message_handler(commands=['start'])
