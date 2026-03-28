@@ -1,7 +1,7 @@
 import telebot
 import os
 import threading
-from flask import Flask, send_from_directory
+from flask import Flask, render_template
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 
 TOKEN = os.getenv("BOT_TOKEN")
@@ -12,7 +12,7 @@ app = Flask(__name__)
 # --- САЙТ ---
 @app.route("/")
 def index():
-    return send_from_directory(".", "index.html")
+    return render_template("index.html")
 
 # --- БОТ ---
 @bot.message_handler(commands=['start'])
@@ -42,5 +42,5 @@ threading.Thread(target=run_bot).start()
 
 print("BOT + SITE STARTED")
 
-# ❗ ВАЖНО — ПОРТ
+# --- ВАЖНО: порт Railway ---
 app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
