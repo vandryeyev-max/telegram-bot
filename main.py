@@ -1,8 +1,7 @@
 import telebot
 import os
-import threading
-from flask import Flask, render_template
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
+from flask import Flask, render_template
 
 TOKEN = os.getenv("BOT_TOKEN")
 
@@ -34,13 +33,13 @@ def start(message):
         reply_markup=markup
     )
 
-# --- ЗАПУСК БОТА ---
-def run_bot():
-    bot.infinity_polling()
+# --- ЗАПУСК ---
+if __name__ == "__main__":
+    import threading
 
-threading.Thread(target=run_bot).start()
+    def run_bot():
+        bot.infinity_polling()
 
-print("BOT + SITE STARTED")
+    threading.Thread(target=run_bot).start()
 
-# --- ВАЖНО: порт Railway ---
-app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
+    app.run(host="0.0.0.0", port=8080)
