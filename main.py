@@ -11,7 +11,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return render_template("index2.html")
 
 @bot.message_handler(commands=['start'])
 def start(message):
