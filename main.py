@@ -1,33 +1,23 @@
-import os
 import telebot
-from flask import Flask, send_file
-from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
-import threading
+import os
+from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 
 TOKEN = os.getenv("BOT_TOKEN")
 
 bot = telebot.TeleBot(TOKEN)
 
-app = Flask(__name__)
-
-@app.route("/")
-def home():
-    return "Bot is running"
-
-@app.route("/app")
-def web_app():
-    return send_file("index.html")
-
 @bot.message_handler(commands=['start'])
 def start(message):
     markup = InlineKeyboardMarkup()
 
-    btn = InlineKeyboardButton(
-        text="🎮 Открыть казино",
-        web_app={"url": "https://telegram-bot-production-b86b.up.railway.app/app"}
+    web_app = WebAppInfo("https://production-b86b.up.railway.app")
+
+    button = InlineKeyboardButton(
+        text="🎰 Играть",
+        web_app=web_app
     )
 
-    markup.add(btn)
+    markup.add(button)
 
     bot.send_message(
         message.chat.id,
@@ -35,10 +25,5 @@ def start(message):
         reply_markup=markup
     )
 
-def run_bot():
-    print("BOT STARTED")
-    bot.infinity_polling(skip_pending=True)
-
-if __name__ == "__main__":
-    threading.Thread(target=run_bot).start()
-    app.run(host="0.0.0.0", port=10000)
+print("BOT STARTED")
+bot.infinity_polling()
