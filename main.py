@@ -7,7 +7,9 @@ from flask import Flask, render_template
 TOKEN = os.getenv("BOT_TOKEN")
 
 bot = telebot.TeleBot(TOKEN)
-app = Flask(__name__)
+
+# ВАЖНО — явно указываем папку templates
+app = Flask(__name__, template_folder="templates")
 
 # --- САЙТ ---
 @app.route("/")
@@ -34,10 +36,11 @@ def start(message):
         reply_markup=markup
     )
 
-# --- ЗАПУСК ---
+# --- ЗАПУСК БОТА ---
 def run_bot():
     bot.infinity_polling()
 
+# --- СТАРТ ---
 if __name__ == "__main__":
     threading.Thread(target=run_bot).start()
     port = int(os.environ.get("PORT", 8080))
