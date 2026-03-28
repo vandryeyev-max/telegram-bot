@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    body {
+      background: #0f172a;
+      color: white;
+      text-align: center;
+      font-family: Arial;
+    }
+    button {
+      padding: 15px;
+      margin: 10px;
+      font-size: 18px;
+      border-radius: 10px;
+      border: none;
+      background: #22c55e;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+<h1>🎰 Casino</h1>
+<h2 id="balance">Баланс: 1000$</h2>
+
+<button onclick="play()">🎲 Играть</button>
+
+<script>
+let balance = 1000;
+
+function play() {
+  let win = Math.random() > 0.5;
+
+  if (win) {
+    balance += 100;
+    alert("Ты выиграл +100$ 🎉");
+  } else {
+    balance -= 100;
+    alert("Ты проиграл -100$ 😢");
+  }
+
+  document.getElementById("balance").innerText = "Баланс: " + balance + "$";
+}
+</script>
+
+</body>
+</html>
