@@ -2,264 +2,134 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<title>Casino</title>
 
 <style>
 body {
     margin: 0;
     font-family: Arial;
-    background: #000;
+    background: black;
     color: white;
 }
 
 .header {
-    text-align: center;
     padding: 15px;
-    font-size: 22px;
+    font-size: 20px;
+    border-bottom: 1px solid #333;
 }
 
 .balance {
+    float: right;
+}
+
+.menu {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+}
+
+.btn {
+    padding: 15px;
+    background: #111;
+    border-radius: 10px;
     text-align: center;
-    color: #00ff99;
+    width: 40%;
 }
 
-.screen { display:none; padding:15px; }
-.active { display:block; }
-
-.card {
-    background:#111;
-    padding:15px;
-    margin:10px 0;
-    border-radius:12px;
-    text-align:center;
+.section {
+    display: none;
+    padding: 20px;
 }
 
-/* CARDS */
-.cards {
-    display:flex;
-    gap:5px;
-}
-.card-ui {
-    background:#fff;
-    color:black;
-    padding:10px;
-    border-radius:8px;
+.active {
+    display: block;
 }
 
-/* NAV */
-.nav {
-    position:fixed;
-    bottom:0;
-    width:100%;
-    display:flex;
-    background:#111;
-}
-.nav div {
-    flex:1;
-    text-align:center;
-    padding:10px;
-}
-
-/* WHEEL */
-.wheel {
-    font-size:40px;
-    text-align:center;
+input {
+    padding: 10px;
+    width: 100%;
+    margin-top: 10px;
 }
 </style>
-</head>
 
+</head>
 <body>
 
-<div class="header">🎰 Casino</div>
-<div class="balance" id="balance"></div>
-
-<!-- HOME -->
-<div id="home" class="screen active">
-    <div class="card" onclick="show('roulette')">🎯 Roulette</div>
-    <div class="card" onclick="show('blackjack')">🃏 Blackjack</div>
-    <div class="card" onclick="show('jet')">🚀 Lucky Jet</div>
+<div class="header">
+    Казино 🎰
+    <span class="balance">💰 <span id="balance">1000</span></span>
 </div>
 
-<!-- PROFILE -->
-<div id="profile" class="screen">
-    <h2 id="name"></h2>
-    <p id="bal"></p>
+<div class="menu">
+    <div class="btn" onclick="openTab('games')">Игры</div>
+    <div class="btn" onclick="openTab('profile')">Профиль</div>
 </div>
 
-<!-- ROULETTE -->
-<div id="roulette" class="screen">
-    <h2>🎯 Roulette</h2>
-    <div class="wheel" id="wheel">🎡</div>
-    <input id="bet" placeholder="Ставка">
-    <button onclick="spin()">SPIN</button>
-    <p id="r"></p>
+<div id="games" class="section active">
+    <h2>🎲 Игры</h2>
+
+    <button onclick="blackjack()">Blackjack</button>
+    <button onclick="roulette()">Рулетка</button>
+    <button onclick="lucky()">Lucky Jet</button>
+
+    <p id="gameResult"></p>
 </div>
 
-<!-- BLACKJACK -->
-<div id="blackjack" class="screen">
-    <h2>🃏 Blackjack</h2>
+<div id="profile" class="section">
+    <h2>👤 Профиль</h2>
 
-    <p>Ты:</p>
-    <div id="playerCards" class="cards"></div>
+    <input id="name" placeholder="Введите ник">
+    <button onclick="saveProfile()">Сохранить</button>
 
-    <p>Дилер:</p>
-    <div id="dealerCards" class="cards"></div>
-
-    <button onclick="hit()">HIT</button>
-    <button onclick="stand()">STAND</button>
-    <button onclick="startBJ()">NEW</button>
-</div>
-
-<!-- LUCKY JET -->
-<div id="jet" class="screen">
-    <h2>🚀 Lucky Jet</h2>
-    <input id="jbet" placeholder="Ставка">
-    <h1 id="multi">x1.00</h1>
-    <button onclick="startJet()">START</button>
-    <button onclick="cashOut()">CASH OUT</button>
-</div>
-
-<!-- NAV -->
-<div class="nav">
-    <div onclick="show('home')">🏠</div>
-    <div onclick="show('profile')">👤</div>
+    <p id="profileName"></p>
 </div>
 
 <script>
-let tg = window.Telegram.WebApp;
-let user = tg.initDataUnsafe.user;
+let balance = 1000;
 
-// BALANCE
-let balance = parseInt(localStorage.getItem("balance") || 1000);
-
-// UI
-function update(){
-    document.getElementById("balance").innerText="$"+balance;
-    document.getElementById("bal").innerText="Balance: $"+balance;
-    localStorage.setItem("balance",balance);
-
-    if(user){
-        document.getElementById("name").innerText=user.first_name;
-    }
+function updateBalance() {
+    document.getElementById("balance").innerText = balance;
 }
 
-function show(id){
-    document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
-    document.getElementById(id).classList.add("active");
+function openTab(tab) {
+    document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+    document.getElementById(tab).classList.add('active');
 }
 
-// 🎯 ROULETTE (реал числа)
-function spin(){
-    let bet=parseInt(document.getElementById("bet").value);
-    if(!bet)return;
+function blackjack() {
+    let win = Math.random() > 0.5;
+    if (win) balance += 100;
+    else balance -= 100;
 
-    let num=Math.floor(Math.random()*37);
-    document.getElementById("r").innerText="Число: "+num;
-
-    if(num%2===0){
-        balance+=bet;
-    }else{
-        balance-=bet;
-    }
-
-    update();
+    document.getElementById("gameResult").innerText = win ? "Ты выиграл 🎉" : "Ты проиграл 😢";
+    updateBalance();
 }
 
-// 🃏 BLACKJACK
-let player=[],dealer=[];
+function roulette() {
+    let win = Math.random() > 0.5;
+    if (win) balance += 200;
+    else balance -= 200;
 
-function card(){
-    return Math.floor(Math.random()*10)+1;
+    document.getElementById("gameResult").innerText = win ? "Красное! +200 🔴" : "Чёрное! -200 ⚫";
+    updateBalance();
 }
 
-function renderCards(){
-    let pDiv=document.getElementById("playerCards");
-    let dDiv=document.getElementById("dealerCards");
+function lucky() {
+    let multiplier = (Math.random() * 5).toFixed(2);
+    let win = multiplier > 2;
 
-    pDiv.innerHTML="";
-    dDiv.innerHTML="";
+    if (win) balance += 150;
+    else balance -= 150;
 
-    player.forEach(c=>{
-        pDiv.innerHTML+=`<div class="card-ui">${c}</div>`;
-    });
-
-    dealer.forEach(c=>{
-        dDiv.innerHTML+=`<div class="card-ui">${c}</div>`;
-    });
+    document.getElementById("gameResult").innerText =
+        "Коэф: x" + multiplier + (win ? " 🚀 выиграл!" : " 💥 проиграл");
+    updateBalance();
 }
 
-function sum(arr){
-    return arr.reduce((a,b)=>a+b,0);
+function saveProfile() {
+    let name = document.getElementById("name").value;
+    document.getElementById("profileName").innerText = "Ник: " + name;
 }
-
-function startBJ(){
-    player=[card(),card()];
-    dealer=[card()];
-    renderCards();
-}
-
-function hit(){
-    player.push(card());
-    renderCards();
-
-    if(sum(player)>21){
-        balance-=50;
-        startBJ();
-        update();
-    }
-}
-
-function stand(){
-    while(sum(dealer)<17){
-        dealer.push(card());
-    }
-
-    if(sum(player)>sum(dealer)){
-        balance+=50;
-    }else{
-        balance-=50;
-    }
-
-    startBJ();
-    update();
-}
-
-// 🚀 LUCKY JET
-let m=1,run=false,int,bet=0;
-
-function startJet(){
-    bet=parseInt(document.getElementById("jbet").value);
-    if(!bet)return;
-
-    run=true;
-    m=1;
-
-    int=setInterval(()=>{
-        m+=0.1;
-        document.getElementById("multi").innerText="x"+m.toFixed(2);
-
-        if(Math.random()<0.05){
-            clearInterval(int);
-            run=false;
-            balance-=bet;
-            update();
-        }
-    },150);
-}
-
-function cashOut(){
-    if(!run)return;
-
-    clearInterval(int);
-    run=false;
-
-    balance+=Math.floor(bet*m);
-    update();
-}
-
-// INIT
-startBJ();
-update();
 </script>
 
 </body>
