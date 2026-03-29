@@ -1,303 +1,261 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Casino MAX</title>
 
 <style>
-body {
+body{
     margin:0;
     font-family:Arial;
-    background:#050505;
+    background:#07070c;
     color:white;
 }
 
-.header {
+/* screens */
+.screen{display:none;}
+.active{display:block;}
+
+.header{
     display:flex;
     justify-content:space-between;
     padding:15px;
-    background:#111;
 }
 
-.balance {
-    color:#00ff99;
-}
+.balance{color:#00ff9d;}
 
-.menu {
-    display:flex;
+.games{
+    display:grid;
+    grid-template-columns:1fr 1fr;
     gap:10px;
     padding:10px;
 }
 
-.tab {
-    flex:1;
-    padding:12px;
-    background:#1a1a1a;
-    border-radius:10px;
-    text-align:center;
-}
-
-.section { display:none; padding:10px; }
-.active { display:block; }
-
-.card {
-    background:#0f0f0f;
-    padding:15px;
+.card{
+    background:#14141c;
+    padding:20px;
     border-radius:15px;
-    margin-bottom:15px;
-}
-
-button {
-    width:100%;
-    padding:12px;
-    margin-top:10px;
-    background:#00ff99;
-    border:none;
-    border-radius:10px;
-    font-weight:bold;
-}
-
-input {
-    width:100%;
-    padding:10px;
-    background:#222;
-    color:white;
-    border:none;
-}
-
-.multi {
-    font-size:45px;
     text-align:center;
-    text-shadow:0 0 20px #00ff99;
-    animation:pulse 1s infinite;
 }
 
-@keyframes pulse {
-    0%{transform:scale(1);}
-    50%{transform:scale(1.1);}
-    100%{transform:scale(1);}
+.navbar{
+    position:fixed;
+    bottom:0;
+    width:100%;
+    background:#111;
+    display:flex;
+    justify-content:space-around;
+    padding:10px;
 }
 
-canvas {
-    background:black;
+/* game */
+.game-area{
+    height:200px;
+    background:#111;
+    margin:10px;
+    border-radius:15px;
+    position:relative;
+}
+
+canvas{position:absolute;}
+
+.rocket{
+    position:absolute;
+    width:40px;
+}
+
+.multi{
+    text-align:center;
+    font-size:30px;
+    color:#00ffcc;
+}
+
+button{
+    padding:12px;
+    width:100%;
+    margin-top:10px;
+    border:none;
     border-radius:10px;
 }
 
-.players {
-    font-size:12px;
-    max-height:100px;
-    overflow:hidden;
-}
-
-.history {
-    display:flex;
-    gap:5px;
-    overflow-x:auto;
-    margin-top:10px;
-}
-
-.history div {
-    padding:5px;
-    background:#111;
-    border-radius:5px;
-}
+.start{background:#00ff88;}
+.cash{background:#ff4444;}
 </style>
-
 </head>
+
 <body>
 
+<!-- MENU -->
+<div id="menu" class="screen active">
 <div class="header">
-🎰 Casino MAX
-<div class="balance">💰 <span id="balance">1000</span></div>
+🎰 Casino
+<div class="balance">$ <span id="b1">1000</span></div>
 </div>
 
-<div class="menu">
-<div class="tab" onclick="show('game')">🎮</div>
-<div class="tab" onclick="show('profile')">👤</div>
-</div>
-
-<!-- GAME -->
-<div id="game" class="section active">
-<div class="card">
-
-<canvas id="chart" width="300" height="150"></canvas>
-
-<input id="bet" value="100">
-
-<div class="multi" id="multi">x1.00</div>
-
-<button onclick="start()">СТАРТ</button>
-<button onclick="cash()">ЗАБРАТЬ</button>
-
-<div class="players" id="players"></div>
-<div class="history" id="history"></div>
-
+<div class="games">
+<div class="card" onclick="go('jet')">🚀 Lucky Jet</div>
+<div class="card" onclick="go('roulette')">🎡 Рулетка</div>
+<div class="card" onclick="go('blackjack')">🃏 Blackjack</div>
+<div class="card" onclick="go('profile')">👤 Профиль</div>
 </div>
 </div>
 
 <!-- PROFILE -->
-<div id="profile" class="section">
-<div class="card">
-
-<h3>👤 Профиль</h3>
-
-<input id="name" placeholder="Ник">
-<input id="avatar" placeholder="Ссылка на фото">
-
-<button onclick="save()">Сохранить</button>
-
-<p id="nick"></p>
-<img id="img" width="80">
-
+<div id="profile" class="screen">
+<div class="header">Профиль</div>
+<h2>Игрок</h2>
+<p>Баланс: $<span id="b2">1000</span></p>
 </div>
+
+<!-- LUCKY JET -->
+<div id="jet" class="screen">
+<div class="header">
+⬅ <span onclick="go('menu')">Назад</span>
+<div class="balance">$ <span id="b3">1000</span></div>
+</div>
+
+<div class="game-area">
+<canvas id="c"></canvas>
+<img id="r" class="rocket" src="https://cdn-icons-png.flaticon.com/512/3219/3219536.png">
+</div>
+
+<div class="multi" id="m">x1.00</div>
+
+<input id="bet" value="100">
+
+<button class="start" onclick="start()">СТАРТ</button>
+<button class="cash" onclick="cash()">ЗАБРАТЬ</button>
+</div>
+
+<!-- ROULETTE -->
+<div id="roulette" class="screen">
+<div class="header">
+⬅ <span onclick="go('menu')">Назад</span>
+</div>
+
+<h2 style="text-align:center">🎡 Рулетка</h2>
+<div class="multi" id="roll">⚪</div>
+<input id="bet2" value="100">
+<button onclick="spin()">Крутить</button>
+</div>
+
+<!-- BLACKJACK -->
+<div id="blackjack" class="screen">
+<div class="header">
+⬅ <span onclick="go('menu')">Назад</span>
+</div>
+
+<p>Ты: <span id="p"></span></p>
+<p>Дилер: <span id="d"></span></p>
+
+<button onclick="bjStart()">Начать</button>
+<button onclick="hit()">Взять</button>
+<button onclick="stand()">Стоп</button>
+</div>
+
+<!-- NAV -->
+<div class="navbar">
+<div onclick="go('menu')">🏠</div>
+<div onclick="go('jet')">🚀</div>
+<div onclick="go('profile')">👤</div>
 </div>
 
 <script>
-
-// 🔊 SOUND
-let bg = new Audio("https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3");
-bg.loop=true;
-
-let win = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3");
-let lose = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-arcade-retro-game-over-213.mp3");
-
-// 💰 BALANCE
-let balance = localStorage.getItem("balance") || 1000;
-
-function update(){
-    document.getElementById("balance").innerText = balance;
-    localStorage.setItem("balance", balance);
+let bal = localStorage.getItem("bal") || 1000;
+function upd(){
+    document.querySelectorAll("[id^=b]").forEach(e=>e.innerText=bal);
+    localStorage.setItem("bal",bal);
 }
-update();
+upd();
 
-// 📱 TABS
-function show(id){
-    document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
+function go(id){
+    document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
 }
 
-// 📈 GRAPH
-let ctx = chart.getContext("2d");
-let points=[];
-
-function draw(){
-    ctx.fillStyle="#000";
-    ctx.fillRect(0,0,300,150);
-
-    ctx.strokeStyle="#00ff99";
-    ctx.beginPath();
-
-    points.forEach((p,i)=>{
-        if(i===0) ctx.moveTo(0,150-p);
-        else ctx.lineTo(i*5,150-p);
-    });
-
-    ctx.stroke();
-}
-
-// 🎮 GAME
-let multi=1,game=false,int;
+// LUCKY JET
+let multi=1,run=false,int;
+let ctx=c.getContext("2d");
+c.width=300;c.height=200;
 
 function start(){
-    if(game) return;
+if(run)return;
+let bet=+bet.value;
+if(bet>bal)return;
+bal-=bet;upd();
 
-    bg.play();
+multi=1;run=true;
+ctx.beginPath();ctx.moveTo(0,200);
 
-    let bet=parseInt(document.getElementById("bet").value);
-    if(bet>balance) return;
+int=setInterval(()=>{
+multi+=0.05;
+let x=multi*30,y=200-multi*20;
+ctx.lineTo(x,y);ctx.stroke();
+r.style.left=x+"px";
+r.style.bottom=multi*10+"px";
+m.innerText="x"+multi.toFixed(2);
 
-    balance-=bet;
-    update();
-
-    game=true;
-    multi=1;
-    points=[];
-
-    int=setInterval(()=>{
-        multi+=0.05;
-        points.push(multi*5);
-
-        draw();
-        fakePlayers();
-        updateMulti();
-
-        if(Math.random()<0.03){
-            crash();
-        }
-    },100);
+if(Math.random()<0.03){crash();}
+},100);
 }
 
 function crash(){
-    clearInterval(int);
-    game=false;
-
-    lose.play();
-
-    document.getElementById("multi").innerText="💥 CRASH";
-    addHistory(multi);
+clearInterval(int);
+run=false;
+m.innerText="💥";
 }
 
 function cash(){
-    if(!game) return;
-
-    clearInterval(int);
-
-    let bet=parseInt(document.getElementById("bet").value);
-    let winAmount=bet*multi;
-
-    balance+=Math.floor(winAmount);
-    update();
-
-    win.play();
-
-    game=false;
-    document.getElementById("multi").innerText="💰 "+Math.floor(winAmount);
-    addHistory(multi);
+if(!run)return;
+clearInterval(int);
+run=false;
+let win=bet.value*multi;
+bal+=Math.floor(win);upd();
+m.innerText="+"+Math.floor(win);
 }
 
-function updateMulti(){
-    document.getElementById("multi").innerText="x"+multi.toFixed(2);
+// ROULETTE
+function spin(){
+let bet=+bet2.value;
+let i=0;
+let anim=setInterval(()=>{
+roll.innerText=i%2?"🔴":"⚫";
+i++;
+},100);
+
+setTimeout(()=>{
+clearInterval(anim);
+let win=Math.random()>0.5;
+roll.innerText=win?"🔴":"⚫";
+bal+=win?bet:-bet;
+upd();
+},2000);
 }
 
-// 👥 PLAYERS
-function fakePlayers(){
-    let names=["Alex","Ivan","Max","Leo","Tom","Nick"];
-    let el=document.createElement("div");
+// BLACKJACK
+let pc=[],dc=[];
+function card(){return Math.floor(Math.random()*11)+1;}
+function sum(a){return a.reduce((x,y)=>x+y,0);}
 
-    el.innerText=names[Math.random()*names.length|0]+" x"+multi.toFixed(2);
-
-    let box=document.getElementById("players");
-    box.prepend(el);
-
-    if(box.children.length>6){
-        box.lastChild.remove();
-    }
+function bjStart(){
+pc=[card(),card()];
+dc=[card()];
+show();
 }
 
-// 📊 HISTORY
-function addHistory(x){
-    let el=document.createElement("div");
-    el.innerText="x"+x.toFixed(2);
-    document.getElementById("history").prepend(el);
+function hit(){pc.push(card());show();}
+function stand(){
+while(sum(dc)<17)dc.push(card());
+bal+=sum(pc)>sum(dc)?100:-100;
+upd();show();
 }
 
-// 👤 PROFILE
-function save(){
-    let n=document.getElementById("name").value;
-    let a=document.getElementById("avatar").value;
-
-    localStorage.setItem("name",n);
-    localStorage.setItem("avatar",a);
-
-    load();
+function show(){
+p.innerText=pc.join(",");
+d.innerText=dc.join(",");
 }
-
-function load(){
-    document.getElementById("nick").innerText=localStorage.getItem("name")||"";
-    document.getElementById("img").src=localStorage.getItem("avatar")||"";
-}
-load();
-
 </script>
 
 </body>
