@@ -1,17 +1,266 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>Casino</title>
+<meta charset="UTF-8">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial;
+    background: #000;
+    color: white;
+}
+
+.header {
+    text-align: center;
+    padding: 15px;
+    font-size: 22px;
+}
+
+.balance {
+    text-align: center;
+    color: #00ff99;
+}
+
+.screen { display:none; padding:15px; }
+.active { display:block; }
+
+.card {
+    background:#111;
+    padding:15px;
+    margin:10px 0;
+    border-radius:12px;
+    text-align:center;
+}
+
+/* CARDS */
+.cards {
+    display:flex;
+    gap:5px;
+}
+.card-ui {
+    background:#fff;
+    color:black;
+    padding:10px;
+    border-radius:8px;
+}
+
+/* NAV */
+.nav {
+    position:fixed;
+    bottom:0;
+    width:100%;
+    display:flex;
+    background:#111;
+}
+.nav div {
+    flex:1;
+    text-align:center;
+    padding:10px;
+}
+
+/* WHEEL */
+.wheel {
+    font-size:40px;
+    text-align:center;
+}
+</style>
 </head>
-<body style="background:black;color:white;text-align:center;margin-top:100px">
 
-<h1>🎰 Casino</h1>
-<p>Balance: $1000</p>
+<body>
 
-<button onclick="alert('Работает 😎')">
-Играть
-</button>
+<div class="header">🎰 Casino</div>
+<div class="balance" id="balance"></div>
+
+<!-- HOME -->
+<div id="home" class="screen active">
+    <div class="card" onclick="show('roulette')">🎯 Roulette</div>
+    <div class="card" onclick="show('blackjack')">🃏 Blackjack</div>
+    <div class="card" onclick="show('jet')">🚀 Lucky Jet</div>
+</div>
+
+<!-- PROFILE -->
+<div id="profile" class="screen">
+    <h2 id="name"></h2>
+    <p id="bal"></p>
+</div>
+
+<!-- ROULETTE -->
+<div id="roulette" class="screen">
+    <h2>🎯 Roulette</h2>
+    <div class="wheel" id="wheel">🎡</div>
+    <input id="bet" placeholder="Ставка">
+    <button onclick="spin()">SPIN</button>
+    <p id="r"></p>
+</div>
+
+<!-- BLACKJACK -->
+<div id="blackjack" class="screen">
+    <h2>🃏 Blackjack</h2>
+
+    <p>Ты:</p>
+    <div id="playerCards" class="cards"></div>
+
+    <p>Дилер:</p>
+    <div id="dealerCards" class="cards"></div>
+
+    <button onclick="hit()">HIT</button>
+    <button onclick="stand()">STAND</button>
+    <button onclick="startBJ()">NEW</button>
+</div>
+
+<!-- LUCKY JET -->
+<div id="jet" class="screen">
+    <h2>🚀 Lucky Jet</h2>
+    <input id="jbet" placeholder="Ставка">
+    <h1 id="multi">x1.00</h1>
+    <button onclick="startJet()">START</button>
+    <button onclick="cashOut()">CASH OUT</button>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+    <div onclick="show('home')">🏠</div>
+    <div onclick="show('profile')">👤</div>
+</div>
+
+<script>
+let tg = window.Telegram.WebApp;
+let user = tg.initDataUnsafe.user;
+
+// BALANCE
+let balance = parseInt(localStorage.getItem("balance") || 1000);
+
+// UI
+function update(){
+    document.getElementById("balance").innerText="$"+balance;
+    document.getElementById("bal").innerText="Balance: $"+balance;
+    localStorage.setItem("balance",balance);
+
+    if(user){
+        document.getElementById("name").innerText=user.first_name;
+    }
+}
+
+function show(id){
+    document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+}
+
+// 🎯 ROULETTE (реал числа)
+function spin(){
+    let bet=parseInt(document.getElementById("bet").value);
+    if(!bet)return;
+
+    let num=Math.floor(Math.random()*37);
+    document.getElementById("r").innerText="Число: "+num;
+
+    if(num%2===0){
+        balance+=bet;
+    }else{
+        balance-=bet;
+    }
+
+    update();
+}
+
+// 🃏 BLACKJACK
+let player=[],dealer=[];
+
+function card(){
+    return Math.floor(Math.random()*10)+1;
+}
+
+function renderCards(){
+    let pDiv=document.getElementById("playerCards");
+    let dDiv=document.getElementById("dealerCards");
+
+    pDiv.innerHTML="";
+    dDiv.innerHTML="";
+
+    player.forEach(c=>{
+        pDiv.innerHTML+=`<div class="card-ui">${c}</div>`;
+    });
+
+    dealer.forEach(c=>{
+        dDiv.innerHTML+=`<div class="card-ui">${c}</div>`;
+    });
+}
+
+function sum(arr){
+    return arr.reduce((a,b)=>a+b,0);
+}
+
+function startBJ(){
+    player=[card(),card()];
+    dealer=[card()];
+    renderCards();
+}
+
+function hit(){
+    player.push(card());
+    renderCards();
+
+    if(sum(player)>21){
+        balance-=50;
+        startBJ();
+        update();
+    }
+}
+
+function stand(){
+    while(sum(dealer)<17){
+        dealer.push(card());
+    }
+
+    if(sum(player)>sum(dealer)){
+        balance+=50;
+    }else{
+        balance-=50;
+    }
+
+    startBJ();
+    update();
+}
+
+// 🚀 LUCKY JET
+let m=1,run=false,int,bet=0;
+
+function startJet(){
+    bet=parseInt(document.getElementById("jbet").value);
+    if(!bet)return;
+
+    run=true;
+    m=1;
+
+    int=setInterval(()=>{
+        m+=0.1;
+        document.getElementById("multi").innerText="x"+m.toFixed(2);
+
+        if(Math.random()<0.05){
+            clearInterval(int);
+            run=false;
+            balance-=bet;
+            update();
+        }
+    },150);
+}
+
+function cashOut(){
+    if(!run)return;
+
+    clearInterval(int);
+    run=false;
+
+    balance+=Math.floor(bet*m);
+    update();
+}
+
+// INIT
+startBJ();
+update();
+</script>
 
 </body>
 </html>
