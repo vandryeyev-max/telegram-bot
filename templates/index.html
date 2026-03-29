@@ -8,47 +8,61 @@
 body {
     margin: 0;
     font-family: Arial;
-    background: black;
+    background: #0b0b0b;
     color: white;
 }
 
 .header {
+    display: flex;
+    justify-content: space-between;
     padding: 15px;
-    font-size: 20px;
-    border-bottom: 1px solid #333;
-}
-
-.balance {
-    float: right;
+    font-size: 18px;
+    border-bottom: 1px solid #222;
 }
 
 .menu {
     display: flex;
-    justify-content: space-around;
-    margin-top: 20px;
+    gap: 10px;
+    padding: 10px;
 }
 
-.btn {
-    padding: 15px;
+.tab {
+    flex: 1;
+    padding: 12px;
     background: #111;
     border-radius: 10px;
     text-align: center;
-    width: 40%;
 }
 
 .section {
     display: none;
-    padding: 20px;
+    padding: 15px;
 }
 
 .active {
     display: block;
 }
 
-input {
-    padding: 10px;
-    width: 100%;
+.card {
+    background: #111;
+    padding: 15px;
+    border-radius: 12px;
     margin-top: 10px;
+}
+
+button {
+    padding: 12px;
+    margin-top: 10px;
+    width: 100%;
+    background: #1f1f1f;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+}
+
+button:active {
+    background: #333;
 }
 </style>
 
@@ -57,37 +71,52 @@ input {
 
 <div class="header">
     Казино 🎰
-    <span class="balance">💰 <span id="balance">1000</span></span>
+    <div>💰 <span id="balance">1000</span></div>
 </div>
 
 <div class="menu">
-    <div class="btn" onclick="openTab('games')">Игры</div>
-    <div class="btn" onclick="openTab('profile')">Профиль</div>
+    <div class="tab" onclick="openTab('games')">Игры</div>
+    <div class="tab" onclick="openTab('profile')">Профиль</div>
 </div>
 
+<!-- ИГРЫ -->
 <div id="games" class="section active">
-    <h2>🎲 Игры</h2>
 
-    <button onclick="blackjack()">Blackjack</button>
-    <button onclick="roulette()">Рулетка</button>
-    <button onclick="lucky()">Lucky Jet</button>
+    <div class="card">
+        <h3>🃏 Blackjack</h3>
+        <button onclick="blackjack()">Играть</button>
+    </div>
 
-    <p id="gameResult"></p>
+    <div class="card">
+        <h3>🎡 Рулетка</h3>
+        <button onclick="roulette()">Крутить</button>
+    </div>
+
+    <div class="card">
+        <h3>🚀 Lucky Jet</h3>
+        <button onclick="lucky()">Запустить</button>
+    </div>
+
+    <p id="result"></p>
+
 </div>
 
+<!-- ПРОФИЛЬ -->
 <div id="profile" class="section">
-    <h2>👤 Профиль</h2>
 
-    <input id="name" placeholder="Введите ник">
-    <button onclick="saveProfile()">Сохранить</button>
+    <div class="card">
+        <h3>👤 Профиль</h3>
+        <input id="name" placeholder="Ник" style="width:100%; padding:10px;">
+        <button onclick="saveProfile()">Сохранить</button>
+        <p id="profileName"></p>
+    </div>
 
-    <p id="profileName"></p>
 </div>
 
 <script>
 let balance = 1000;
 
-function updateBalance() {
+function update() {
     document.getElementById("balance").innerText = balance;
 }
 
@@ -98,32 +127,30 @@ function openTab(tab) {
 
 function blackjack() {
     let win = Math.random() > 0.5;
-    if (win) balance += 100;
-    else balance -= 100;
-
-    document.getElementById("gameResult").innerText = win ? "Ты выиграл 🎉" : "Ты проиграл 😢";
-    updateBalance();
+    balance += win ? 100 : -100;
+    document.getElementById("result").innerText =
+        win ? "Выиграл 🎉" : "Проиграл 😢";
+    update();
 }
 
 function roulette() {
     let win = Math.random() > 0.5;
-    if (win) balance += 200;
-    else balance -= 200;
-
-    document.getElementById("gameResult").innerText = win ? "Красное! +200 🔴" : "Чёрное! -200 ⚫";
-    updateBalance();
+    balance += win ? 200 : -200;
+    document.getElementById("result").innerText =
+        win ? "Красное 🔴 +200" : "Чёрное ⚫ -200";
+    update();
 }
 
 function lucky() {
-    let multiplier = (Math.random() * 5).toFixed(2);
-    let win = multiplier > 2;
+    let x = (Math.random() * 5).toFixed(2);
+    let win = x > 2;
 
-    if (win) balance += 150;
-    else balance -= 150;
+    balance += win ? 150 : -150;
 
-    document.getElementById("gameResult").innerText =
-        "Коэф: x" + multiplier + (win ? " 🚀 выиграл!" : " 💥 проиграл");
-    updateBalance();
+    document.getElementById("result").innerText =
+        "x" + x + (win ? " 🚀 WIN" : " 💥 LOSE");
+
+    update();
 }
 
 function saveProfile() {
