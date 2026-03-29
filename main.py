@@ -9,15 +9,17 @@ TOKEN = os.getenv("BOT_TOKEN")
 bot = telebot.TeleBot(TOKEN)
 app = Flask(__name__)
 
+# --- САЙТ ---
 @app.route("/")
 def index():
     return "SITE WORKING"
 
+# --- БОТ ---
 @bot.message_handler(commands=['start'])
 def start(message):
     markup = InlineKeyboardMarkup()
 
-    web_app = WebAppInfo("https://production-b86b.up.railway.app")
+    web_app = WebAppInfo("https://telegram-bot-production-af15.up.railway.app")
 
     button = InlineKeyboardButton(
         text="🎰 Играть",
@@ -35,6 +37,7 @@ def start(message):
 def run_bot():
     bot.infinity_polling()
 
+# --- ЗАПУСК ---
 if __name__ == "__main__":
     threading.Thread(target=run_bot).start()
 
