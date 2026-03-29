@@ -2,67 +2,104 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Casino</title>
+<title>Casino MAX</title>
 
 <style>
 body {
-    margin: 0;
-    font-family: Arial;
-    background: #0b0b0b;
-    color: white;
+    margin:0;
+    font-family:Arial;
+    background:#050505;
+    color:white;
 }
 
 .header {
-    display: flex;
-    justify-content: space-between;
-    padding: 15px;
-    font-size: 18px;
-    border-bottom: 1px solid #222;
+    display:flex;
+    justify-content:space-between;
+    padding:15px;
+    background:#111;
+}
+
+.balance {
+    color:#00ff99;
 }
 
 .menu {
-    display: flex;
-    gap: 10px;
-    padding: 10px;
+    display:flex;
+    gap:10px;
+    padding:10px;
 }
 
 .tab {
-    flex: 1;
-    padding: 12px;
-    background: #111;
-    border-radius: 10px;
-    text-align: center;
+    flex:1;
+    padding:12px;
+    background:#1a1a1a;
+    border-radius:10px;
+    text-align:center;
 }
 
-.section {
-    display: none;
-    padding: 15px;
-}
-
-.active {
-    display: block;
-}
+.section { display:none; padding:10px; }
+.active { display:block; }
 
 .card {
-    background: #111;
-    padding: 15px;
-    border-radius: 12px;
-    margin-top: 10px;
+    background:#0f0f0f;
+    padding:15px;
+    border-radius:15px;
+    margin-bottom:15px;
 }
 
 button {
-    padding: 12px;
-    margin-top: 10px;
-    width: 100%;
-    background: #1f1f1f;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    font-size: 16px;
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    background:#00ff99;
+    border:none;
+    border-radius:10px;
+    font-weight:bold;
 }
 
-button:active {
-    background: #333;
+input {
+    width:100%;
+    padding:10px;
+    background:#222;
+    color:white;
+    border:none;
+}
+
+.multi {
+    font-size:45px;
+    text-align:center;
+    text-shadow:0 0 20px #00ff99;
+    animation:pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0%{transform:scale(1);}
+    50%{transform:scale(1.1);}
+    100%{transform:scale(1);}
+}
+
+canvas {
+    background:black;
+    border-radius:10px;
+}
+
+.players {
+    font-size:12px;
+    max-height:100px;
+    overflow:hidden;
+}
+
+.history {
+    display:flex;
+    gap:5px;
+    overflow-x:auto;
+    margin-top:10px;
+}
+
+.history div {
+    padding:5px;
+    background:#111;
+    border-radius:5px;
 }
 </style>
 
@@ -70,93 +107,197 @@ button:active {
 <body>
 
 <div class="header">
-    Казино 🎰
-    <div>💰 <span id="balance">1000</span></div>
+🎰 Casino MAX
+<div class="balance">💰 <span id="balance">1000</span></div>
 </div>
 
 <div class="menu">
-    <div class="tab" onclick="openTab('games')">Игры</div>
-    <div class="tab" onclick="openTab('profile')">Профиль</div>
+<div class="tab" onclick="show('game')">🎮</div>
+<div class="tab" onclick="show('profile')">👤</div>
 </div>
 
-<!-- ИГРЫ -->
-<div id="games" class="section active">
+<!-- GAME -->
+<div id="game" class="section active">
+<div class="card">
 
-    <div class="card">
-        <h3>🃏 Blackjack</h3>
-        <button onclick="blackjack()">Играть</button>
-    </div>
+<canvas id="chart" width="300" height="150"></canvas>
 
-    <div class="card">
-        <h3>🎡 Рулетка</h3>
-        <button onclick="roulette()">Крутить</button>
-    </div>
+<input id="bet" value="100">
 
-    <div class="card">
-        <h3>🚀 Lucky Jet</h3>
-        <button onclick="lucky()">Запустить</button>
-    </div>
+<div class="multi" id="multi">x1.00</div>
 
-    <p id="result"></p>
+<button onclick="start()">СТАРТ</button>
+<button onclick="cash()">ЗАБРАТЬ</button>
+
+<div class="players" id="players"></div>
+<div class="history" id="history"></div>
 
 </div>
+</div>
 
-<!-- ПРОФИЛЬ -->
+<!-- PROFILE -->
 <div id="profile" class="section">
+<div class="card">
 
-    <div class="card">
-        <h3>👤 Профиль</h3>
-        <input id="name" placeholder="Ник" style="width:100%; padding:10px;">
-        <button onclick="saveProfile()">Сохранить</button>
-        <p id="profileName"></p>
-    </div>
+<h3>👤 Профиль</h3>
 
+<input id="name" placeholder="Ник">
+<input id="avatar" placeholder="Ссылка на фото">
+
+<button onclick="save()">Сохранить</button>
+
+<p id="nick"></p>
+<img id="img" width="80">
+
+</div>
 </div>
 
 <script>
-let balance = 1000;
 
-function update() {
+// 🔊 SOUND
+let bg = new Audio("https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3");
+bg.loop=true;
+
+let win = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3");
+let lose = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-arcade-retro-game-over-213.mp3");
+
+// 💰 BALANCE
+let balance = localStorage.getItem("balance") || 1000;
+
+function update(){
     document.getElementById("balance").innerText = balance;
+    localStorage.setItem("balance", balance);
+}
+update();
+
+// 📱 TABS
+function show(id){
+    document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
 }
 
-function openTab(tab) {
-    document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
-    document.getElementById(tab).classList.add('active');
+// 📈 GRAPH
+let ctx = chart.getContext("2d");
+let points=[];
+
+function draw(){
+    ctx.fillStyle="#000";
+    ctx.fillRect(0,0,300,150);
+
+    ctx.strokeStyle="#00ff99";
+    ctx.beginPath();
+
+    points.forEach((p,i)=>{
+        if(i===0) ctx.moveTo(0,150-p);
+        else ctx.lineTo(i*5,150-p);
+    });
+
+    ctx.stroke();
 }
 
-function blackjack() {
-    let win = Math.random() > 0.5;
-    balance += win ? 100 : -100;
-    document.getElementById("result").innerText =
-        win ? "Выиграл 🎉" : "Проиграл 😢";
+// 🎮 GAME
+let multi=1,game=false,int;
+
+function start(){
+    if(game) return;
+
+    bg.play();
+
+    let bet=parseInt(document.getElementById("bet").value);
+    if(bet>balance) return;
+
+    balance-=bet;
     update();
+
+    game=true;
+    multi=1;
+    points=[];
+
+    int=setInterval(()=>{
+        multi+=0.05;
+        points.push(multi*5);
+
+        draw();
+        fakePlayers();
+        updateMulti();
+
+        if(Math.random()<0.03){
+            crash();
+        }
+    },100);
 }
 
-function roulette() {
-    let win = Math.random() > 0.5;
-    balance += win ? 200 : -200;
-    document.getElementById("result").innerText =
-        win ? "Красное 🔴 +200" : "Чёрное ⚫ -200";
+function crash(){
+    clearInterval(int);
+    game=false;
+
+    lose.play();
+
+    document.getElementById("multi").innerText="💥 CRASH";
+    addHistory(multi);
+}
+
+function cash(){
+    if(!game) return;
+
+    clearInterval(int);
+
+    let bet=parseInt(document.getElementById("bet").value);
+    let winAmount=bet*multi;
+
+    balance+=Math.floor(winAmount);
     update();
+
+    win.play();
+
+    game=false;
+    document.getElementById("multi").innerText="💰 "+Math.floor(winAmount);
+    addHistory(multi);
 }
 
-function lucky() {
-    let x = (Math.random() * 5).toFixed(2);
-    let win = x > 2;
-
-    balance += win ? 150 : -150;
-
-    document.getElementById("result").innerText =
-        "x" + x + (win ? " 🚀 WIN" : " 💥 LOSE");
-
-    update();
+function updateMulti(){
+    document.getElementById("multi").innerText="x"+multi.toFixed(2);
 }
 
-function saveProfile() {
-    let name = document.getElementById("name").value;
-    document.getElementById("profileName").innerText = "Ник: " + name;
+// 👥 PLAYERS
+function fakePlayers(){
+    let names=["Alex","Ivan","Max","Leo","Tom","Nick"];
+    let el=document.createElement("div");
+
+    el.innerText=names[Math.random()*names.length|0]+" x"+multi.toFixed(2);
+
+    let box=document.getElementById("players");
+    box.prepend(el);
+
+    if(box.children.length>6){
+        box.lastChild.remove();
+    }
 }
+
+// 📊 HISTORY
+function addHistory(x){
+    let el=document.createElement("div");
+    el.innerText="x"+x.toFixed(2);
+    document.getElementById("history").prepend(el);
+}
+
+// 👤 PROFILE
+function save(){
+    let n=document.getElementById("name").value;
+    let a=document.getElementById("avatar").value;
+
+    localStorage.setItem("name",n);
+    localStorage.setItem("avatar",a);
+
+    load();
+}
+
+function load(){
+    document.getElementById("nick").innerText=localStorage.getItem("name")||"";
+    document.getElementById("img").src=localStorage.getItem("avatar")||"";
+}
+load();
+
 </script>
 
 </body>
