@@ -3,33 +3,35 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Casino MAX</title>
+<title>Casino ULTRA</title>
 
 <style>
 body{
 margin:0;
-font-family:Arial;
-background:#0b0b15;
+font-family:system-ui;
+background:radial-gradient(circle at top,#0a0a15,#05050a);
 color:white;
 overflow:hidden;
 }
 
+/* HEADER */
 .header{
 display:flex;
 justify-content:space-between;
 padding:15px;
-align-items:center;
 font-size:18px;
 }
 
 .balance{
-color:#00ff9d;
+color:#00ffcc;
 font-weight:bold;
 }
 
+/* SCREEN */
 .screen{display:none;}
 .active{display:block;}
 
+/* MENU */
 .grid{
 display:grid;
 grid-template-columns:1fr 1fr;
@@ -38,30 +40,40 @@ padding:15px;
 }
 
 .card{
-background:#151520;
+background:linear-gradient(135deg,#1a1a2e,#0f0f1f);
 border-radius:20px;
-padding:25px;
+padding:20px;
 text-align:center;
 font-size:18px;
-transition:0.2s;
+box-shadow:0 0 20px rgba(124,92,255,0.2);
 }
 
-.card:active{
-transform:scale(0.95);
-}
-
-.nav{
-position:fixed;
-bottom:0;
+/* BUTTON */
+.btn{
 width:100%;
-display:flex;
-justify-content:space-around;
-background:#111;
-padding:12px;
+padding:15px;
+border:none;
+border-radius:12px;
+margin-top:10px;
+background:linear-gradient(90deg,#7c5cff,#00d4ff);
+color:white;
+font-weight:bold;
 }
 
-.canvas-box{
-height:230px;
+/* INPUT */
+input{
+width:100%;
+padding:12px;
+border-radius:10px;
+border:none;
+background:#111;
+color:white;
+margin-top:10px;
+}
+
+/* LUCKY JET */
+.game{
+height:260px;
 background:#0f0f1f;
 border-radius:20px;
 position:relative;
@@ -72,51 +84,49 @@ canvas{
 position:absolute;
 }
 
-.rocket{
-position:absolute;
-width:40px;
-}
-
 .multi{
 text-align:center;
-font-size:30px;
-color:#00ffcc;
+font-size:32px;
 margin:10px;
-font-weight:bold;
+color:#00ffcc;
 }
 
-input{
+/* PROFILE */
+.profile{
+text-align:center;
+margin-top:30px;
+}
+
+.avatar{
+width:110px;
+height:110px;
+border-radius:50%;
+margin:auto;
+background:url('https://i.imgur.com/8Km9tLL.png');
+background-size:cover;
+box-shadow:0 0 20px #7c5cff;
+}
+
+/* NAV */
+.nav{
+position:fixed;
+bottom:0;
 width:100%;
-padding:14px;
-border-radius:12px;
-border:none;
+display:flex;
+justify-content:space-around;
 background:#111;
-color:white;
-font-size:16px;
-margin-top:10px;
+padding:12px;
 }
-
-.btn{
-width:100%;
-padding:15px;
-margin-top:10px;
-border:none;
-border-radius:14px;
-font-size:16px;
-font-weight:bold;
-}
-
-.green{background:#00ff9d;color:black;}
-.red{background:#ff4d4d;}
 </style>
 </head>
 
 <body>
 
+<!-- MENU -->
 <div id="menu" class="screen active">
 <div class="header">
-🎰 Casino
-<div class="balance">$ <span id="bal1">1000</span></div>
+🎰 Casino ULTRA
+<div class="balance">$ <span id="b1"></span></div>
 </div>
 
 <div class="grid">
@@ -126,44 +136,53 @@ font-weight:bold;
 </div>
 </div>
 
+<!-- PROFILE -->
 <div id="profile" class="screen">
 <div class="header">
 ⬅ <span onclick="openScreen('menu')">Назад</span>
 </div>
-<h2 style="text-align:center">Игрок</h2>
-<p style="text-align:center">Баланс: $<span id="bal2"></span></p>
+
+<div class="profile">
+<div class="avatar"></div>
+<h2>Игрок</h2>
+<p>Баланс: $<span id="b2"></span></p>
+</div>
 </div>
 
+<!-- LUCKY JET -->
 <div id="jet" class="screen">
 <div class="header">
 ⬅ <span onclick="openScreen('menu')">Назад</span>
-<div class="balance">$ <span id="bal3"></span></div>
+<div class="balance">$ <span id="b3"></span></div>
 </div>
 
 <div style="padding:10px">
-<div class="canvas-box">
-<canvas id="canvas"></canvas>
-<img id="rocket" class="rocket" src="https://cdn-icons-png.flaticon.com/512/3219/3219536.png">
+
+<div class="game">
+<canvas id="c"></canvas>
 </div>
 
 <div class="multi" id="multi">x1.00</div>
 
 <input id="bet" value="100">
 
-<button class="btn green" onclick="startGame()">СТАРТ</button>
-<button class="btn red" onclick="cashOut()">ЗАБРАТЬ</button>
+<button class="btn" onclick="start()">СТАВКА</button>
+<button class="btn" onclick="take()">ЗАБРАТЬ</button>
+
 </div>
 </div>
 
+<!-- ROULETTE -->
 <div id="roulette" class="screen">
 <div class="header">
 ⬅ <span onclick="openScreen('menu')">Назад</span>
+<div class="balance">$ <span id="b4"></span></div>
 </div>
 
-<div style="padding:10px">
+<div style="text-align:center">
 <input id="bet2" value="100">
-<button class="btn green" onclick="spin()">Крутить</button>
-<div class="multi" id="result"></div>
+<button class="btn" onclick="spin()">Крутить</button>
+<p id="res"></p>
 </div>
 </div>
 
@@ -174,113 +193,118 @@ font-weight:bold;
 </div>
 
 <script>
-let balance = 1000;
+let balance=1000;
 
-function updateBalance(){
-bal1.innerText = balance;
-bal2.innerText = balance;
-bal3.innerText = balance;
+function upd(){
+b1.innerText=balance;
+b2.innerText=balance;
+b3.innerText=balance;
+b4.innerText=balance;
 }
-
-updateBalance();
+upd();
 
 function openScreen(id){
-document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
-document.getElementById(id).classList.add("active");
+document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+document.getElementById(id).classList.add('active');
 }
+
+/* SOUND */
+function beep(){
+let ctx=new AudioContext();
+let o=ctx.createOscillator();
+o.type="sine";
+o.frequency.value=200;
+o.connect(ctx.destination);
+o.start();
+setTimeout(()=>o.stop(),100);
+}
+
+/* LUCKY JET */
+let ctx=c.getContext('2d');
+c.width=350;
+c.height=260;
 
 let running=false;
-let multiplier=1;
-let interval;
+let multi=1;
+let int;
 
-let ctx = canvas.getContext("2d");
-canvas.width=300;
-canvas.height=230;
-
-function startGame(){
+function start(){
 if(running)return;
 
-let betVal = Number(document.getElementById("bet").value);
+let b=+bet.value;
+if(b>balance)return;
 
-if(betVal > balance || betVal <= 0){
-alert("Ошибка ставки");
-return;
-}
+balance-=b;
+upd();
 
-balance -= betVal;
-updateBalance();
-
-multiplier=1;
 running=true;
+multi=1;
 
-ctx.clearRect(0,0,300,230);
+ctx.clearRect(0,0,c.width,c.height);
 ctx.beginPath();
-ctx.moveTo(0,230);
+ctx.moveTo(0,260);
 
-interval=setInterval(()=>{
-multiplier+=0.05;
+int=setInterval(()=>{
+multi+=0.02;
 
-let x=multiplier*25;
-let y=230-multiplier*20;
+let x=multi*40;
+let y=260-multi*30;
 
 ctx.lineTo(x,y);
-ctx.strokeStyle="#00ffcc";
-ctx.lineWidth=2;
+ctx.strokeStyle="#7c5cff";
+ctx.lineWidth=3;
 ctx.stroke();
 
-rocket.style.left=x+"px";
-rocket.style.bottom=(multiplier*12)+"px";
+document.getElementById("multi").innerText="x"+multi.toFixed(2);
 
-multi.innerText="x"+multiplier.toFixed(2);
-
-if(Math.random()<0.04){
+if(Math.random()<0.02){
 crash();
 }
-},100);
+},40);
 }
 
 function crash(){
-clearInterval(interval);
+clearInterval(int);
 running=false;
-multi.innerText="💥 ПРОИГРАЛ";
+document.getElementById("multi").innerText="💥 Crash";
+beep();
 }
 
-function cashOut(){
+function take(){
 if(!running)return;
 
-clearInterval(interval);
+clearInterval(int);
 running=false;
 
-let betVal = Number(document.getElementById("bet").value);
-let win = Math.floor(betVal * multiplier);
+let b=+bet.value;
+let win=Math.floor(b*multi);
 
-balance += win;
-updateBalance();
+balance+=win;
+upd();
 
-multi.innerText="+"+win;
+document.getElementById("multi").innerText="+"+win;
+beep();
 }
 
+/* ROULETTE */
 function spin(){
-let betVal = Number(document.getElementById("bet2").value);
+let b=+bet2.value;
+if(b>balance)return;
 
-if(betVal > balance){
-alert("Нет денег");
-return;
-}
-
-balance -= betVal;
+balance-=b;
+upd();
 
 setTimeout(()=>{
-let win = Math.random()>0.5;
+let win=Math.random()>0.5;
 
 if(win){
-balance += betVal*2;
-result.innerText="Выиграл 🎉";
+balance+=b*2;
+res.innerText="Выиграл 🎉";
 }else{
-result.innerText="Проиграл 😢";
+res.innerText="Проиграл";
 }
-
-updateBalance();
+upd();
+beep();
 },1000);
 }
 </script>
