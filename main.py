@@ -1,18 +1,20 @@
+import telebot
 import os
 import threading
-import telebot
-from flask import Flask
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
+from flask import Flask, render_template
 
 TOKEN = os.getenv("BOT_TOKEN")
 
 bot = telebot.TeleBot(TOKEN)
-app = Flask(__name__)
+
+# ВАЖНО — указываем templates
+app = Flask(__name__, template_folder="templates")
 
 # --- САЙТ ---
 @app.route("/")
 def index():
-    return "SITE WORKING"
+    return render_template("index.html")
 
 # --- БОТ ---
 @bot.message_handler(commands=['start'])
@@ -34,10 +36,11 @@ def start(message):
         reply_markup=markup
     )
 
+# --- ЗАПУСК БОТА ---
 def run_bot():
     bot.infinity_polling()
 
-# --- ЗАПУСК ---
+# --- СТАРТ ---
 if __name__ == "__main__":
     threading.Thread(target=run_bot).start()
 
