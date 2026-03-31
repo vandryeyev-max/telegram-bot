@@ -3,346 +3,302 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Casino ULTRA MAX</title>
+<title>Casino X PRO</title>
 
 <style>
 body{
-margin:0;
-font-family:system-ui;
-background:#06060f;
-color:white;
-overflow:hidden;
+  margin:0;
+  font-family:Arial;
+  background: radial-gradient(circle at top, #0f172a, #020617);
+  color:white;
 }
 
 /* HEADER */
 .header{
-display:flex;
-justify-content:space-between;
-padding:15px;
+  display:flex;
+  justify-content:space-between;
+  padding:15px;
 }
 
-.balance{color:#00ffcc;font-weight:bold}
-
-/* GRID */
-.grid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:15px;
-padding:15px;
-}
-
-.card{
-background:#111;
-padding:20px;
-border-radius:15px;
-text-align:center;
-font-size:18px;
+.balance{
+  color:#00f0ff;
+  font-size:18px;
 }
 
 /* NAV */
 .nav{
-position:fixed;
-bottom:0;
-width:100%;
-display:flex;
-justify-content:space-around;
-background:#111;
-padding:10px;
+  position:fixed;
+  bottom:0;
+  width:100%;
+  display:flex;
+  justify-content:space-around;
+  background:#020617;
+  padding:10px 0;
 }
 
-/* BUTTON */
+/* SCREEN */
+.screen{display:none;padding:15px;}
+.active{display:block;}
+
 .btn{
-width:100%;
-padding:14px;
-border:none;
-border-radius:12px;
-margin-top:10px;
-background:linear-gradient(90deg,#7c5cff,#00d4ff);
-color:white;
-font-weight:bold;
-}
-
-/* INPUT */
-input{
-width:100%;
-padding:10px;
-border-radius:10px;
-border:none;
-background:#111;
-color:white;
-}
-
-/* SCREENS */
-.screen{display:none}
-.active{display:block}
-
-/* PROFILE */
-.avatar{
-width:120px;
-height:120px;
-border-radius:50%;
-margin:auto;
-background:#222;
-background-size:cover;
-background-position:center;
-}
-
-/* GAME */
-.game{
-position:relative;
-height:250px;
-background:#0f0f1f;
-border-radius:15px;
-overflow:hidden;
-}
-
-canvas{
-position:absolute;
-}
-
-.rocket{
-position:absolute;
-font-size:26px;
-filter:drop-shadow(0 0 10px #ff6600);
-}
-
-/* PARTICLES */
-.particle{
-position:absolute;
-width:4px;
-height:4px;
-background:orange;
-border-radius:50%;
+  background:linear-gradient(90deg,#6d5cff,#00f0ff);
+  border:none;
+  padding:15px;
+  border-radius:15px;
+  color:white;
+  width:100%;
+  margin-top:10px;
+  font-size:16px;
+  box-shadow:0 0 15px rgba(0,255,255,0.3);
 }
 
 /* ROULETTE */
+.wheel-wrap{
+  position:relative;
+  width:260px;
+  margin:auto;
+}
+
+.pointer{
+  position:absolute;
+  top:-10px;
+  left:50%;
+  transform:translateX(-50%);
+  font-size:30px;
+}
+
 .wheel{
-width:260px;
-height:260px;
-border-radius:50%;
-margin:20px auto;
-background:conic-gradient(
-red 0 10%, black 10% 20%, red 20% 30%, black 30% 40%,
-red 40% 50%, black 50% 60%, red 60% 70%, black 70% 80%,
-red 80% 90%, black 90% 100%
-);
-transition:4s cubic-bezier(.1,.7,.1,1);
+  width:260px;
+  height:260px;
+  border-radius:50%;
+  transition:transform 3s cubic-bezier(.17,.67,.83,.67);
+  box-shadow:0 0 40px rgba(0,255,255,0.3);
+}
+
+/* CRASH */
+canvas{
+  width:100%;
+  height:200px;
+  background:#000;
+  border-radius:15px;
+  box-shadow:0 0 25px rgba(0,255,255,0.3);
+}
+
+#mult{
+  font-size:40px;
+  text-align:center;
+  color:#00f0ff;
+}
+
+/* PROFILE */
+.avatar{
+  width:120px;
+  height:120px;
+  border-radius:50%;
+  background:#222;
+  margin:auto;
+  overflow:hidden;
+  box-shadow:0 0 20px rgba(0,255,255,0.5);
+}
+
+.avatar img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+input{
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  border:none;
+  margin-top:10px;
 }
 </style>
 </head>
 
 <body>
 
-<!-- MENU -->
-<div id="menu" class="screen active">
 <div class="header">
-🎰 Casino ULTRA
-<div class="balance">$ <span id="bal"></span></div>
+  <div>Casino PRO</div>
+  <div class="balance" id="balance">$1000</div>
 </div>
 
-<div class="grid">
-<div class="card" onclick="openScreen('jet')">🚀 Lucky Jet</div>
-<div class="card" onclick="openScreen('roulette')">🎡 Рулетка</div>
-<div class="card" onclick="openScreen('profile')">👤 Профиль</div>
+<!-- ROULETTE -->
+<div id="roulette" class="screen active">
+
+<div class="wheel-wrap">
+  <div class="pointer">▼</div>
+  <div class="wheel" id="wheel"></div>
 </div>
+
+<div style="display:flex;gap:10px;margin-top:15px;">
+<button onclick="pick('red')" style="flex:1;background:red;">RED</button>
+<button onclick="pick('black')" style="flex:1;background:black;">BLACK</button>
+</div>
+
+<input id="bet" value="100">
+<button class="btn" onclick="spin()">Крутить</button>
+<h2 id="result"></h2>
+
+</div>
+
+<!-- CRASH -->
+<div id="crash" class="screen">
+<canvas id="canvas"></canvas>
+<div id="mult">x1.00</div>
+<input id="bet2" value="100">
+<button class="btn" onclick="startCrash()">СТАРТ</button>
+<button class="btn" onclick="cashout()">ЗАБРАТЬ</button>
+<button class="btn" onclick="autoBet()">AUTO</button>
 </div>
 
 <!-- PROFILE -->
 <div id="profile" class="screen">
-<div class="header">
-⬅ <span onclick="openScreen('menu')">Назад</span>
+<div class="avatar" onclick="upload()">
+<img id="avatar">
+</div>
+<input type="file" id="file" style="display:none" onchange="loadAvatar(event)">
+<h2 style="text-align:center;">Игрок</h2>
+<p style="text-align:center;" id="bal2">$1000</p>
 </div>
 
-<div style="text-align:center">
-<div class="avatar" id="avatar"></div>
-<input type="file" onchange="changeAvatar(event)">
-<h2>Игрок</h2>
-<p>Баланс: $<span id="bal2"></span></p>
-</div>
-</div>
-
-<!-- LUCKY JET -->
-<div id="jet" class="screen">
-<div class="header">
-⬅ <span onclick="openScreen('menu')">Назад</span>
-<div class="balance">$ <span id="bal3"></span></div>
-</div>
-
-<div class="game">
-<canvas id="c"></canvas>
-<div class="rocket" id="rocket">🚀</div>
-</div>
-
-<div style="text-align:center;font-size:28px" id="multi">x1.00</div>
-
-<input id="bet" value="100">
-
-<button class="btn" onclick="start()">СТАВКА</button>
-<button class="btn" onclick="take()">ЗАБРАТЬ</button>
-</div>
-
-<!-- ROULETTE -->
-<div id="roulette" class="screen">
-<div class="header">
-⬅ <span onclick="openScreen('menu')">Назад</span>
-<div class="balance">$ <span id="bal4"></span></div>
-</div>
-
-<div class="wheel" id="wheel"></div>
-
-<input id="bet2" value="100">
-<button class="btn" onclick="spin()">Крутить</button>
-
-<p id="res" style="text-align:center"></p>
-</div>
-
-<!-- NAV -->
 <div class="nav">
-<div onclick="openScreen('menu')">🏠</div>
-<div onclick="openScreen('jet')">🚀</div>
-<div onclick="openScreen('profile')">👤</div>
+<div onclick="show('roulette')">🎰</div>
+<div onclick="show('crash')">🚀</div>
+<div onclick="show('profile')">👤</div>
 </div>
 
 <script>
-let balance=1000;
+let balance = localStorage.getItem("bal") || 1000;
+let selected="red";
+let sound=new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg");
 
-function update(){
-bal.innerText=balance;
-bal2.innerText=balance;
-bal3.innerText=balance;
-bal4.innerText=balance;
-}
-update();
-
-function openScreen(id){
-document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-document.getElementById(id).classList.add('active');
+function updateBalance(){
+  balanceEl.innerText="$"+balance;
+  bal2.innerText="$"+balance;
+  localStorage.setItem("bal", balance);
 }
 
-/* PROFILE */
-function changeAvatar(e){
-let file=e.target.files[0];
-let reader=new FileReader();
-reader.onload=function(){
-avatar.style.backgroundImage="url("+reader.result+")";
-}
-reader.readAsDataURL(file);
+const balanceEl=document.getElementById("balance");
+const bal2=document.getElementById("bal2");
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
 }
 
-/* SOUND */
-function sound(freq){
-let ctx=new AudioContext();
-let o=ctx.createOscillator();
-o.frequency.value=freq;
-o.connect(ctx.destination);
-o.start();
-setTimeout(()=>o.stop(),100);
+function pick(c){selected=c;}
+
+// рулетка
+const wheel=document.getElementById("wheel");
+let segments=20;
+let colors=[];
+for(let i=0;i<segments;i++){
+  colors.push(i%2===0?"red":"black");
 }
+wheel.style.background="conic-gradient("+colors.map((c,i)=>c+" "+i*(360/segments)+"deg "+(i+1)*(360/segments)+"deg").join(",")+")";
 
-/* LUCKY JET */
-let ctx=c.getContext("2d");
-c.width=350;
-c.height=250;
-
-let run=false;
-let m=1;
-let int;
-
-function start(){
-if(run)return;
-
-let b=+bet.value;
-if(b>balance)return;
-
-balance-=b;
-update();
-
-run=true;
-m=1;
-
-ctx.clearRect(0,0,c.width,c.height);
-ctx.beginPath();
-ctx.moveTo(0,240);
-
-int=setInterval(()=>{
-m+=0.03;
-
-let x=m*30;
-let y=240-m*25;
-
-ctx.lineTo(x,y);
-ctx.strokeStyle="#7c5cff";
-ctx.stroke();
-
-rocket.style.left=x+"px";
-rocket.style.top=y+"px";
-
-/* particles */
-let p=document.createElement("div");
-p.className="particle";
-p.style.left=x+"px";
-p.style.top=y+"px";
-document.body.appendChild(p);
-
-setTimeout(()=>p.remove(),300);
-
-multi.innerText="x"+m.toFixed(2);
-
-if(Math.random()<0.02){
-crash();
-}
-},40);
-}
-
-function crash(){
-clearInterval(int);
-run=false;
-multi.innerText="💥 Crash";
-sound(100);
-}
-
-function take(){
-if(!run)return;
-
-clearInterval(int);
-run=false;
-
-let b=+bet.value;
-let win=Math.floor(b*m);
-
-balance+=win;
-update();
-
-multi.innerText="+"+win;
-sound(400);
-}
-
-/* ROULETTE */
 function spin(){
-let b=+bet2.value;
-if(b>balance)return;
+  let bet=+betInput.value;
+  if(balance<bet)return;
 
-balance-=b;
-update();
+  balance-=bet;
+  updateBalance();
 
-let deg=3600 + Math.random()*360;
-wheel.style.transform="rotate("+deg+"deg)";
+  let index=Math.floor(Math.random()*segments);
+  let winColor=colors[index];
 
-setTimeout(()=>{
-let win=Math.random()>0.5;
+  let deg=360*6+(360/segments)*index;
+  wheel.style.transform="rotate(-"+deg+"deg)";
+  sound.play();
 
-if(win){
-balance+=b*2;
-res.innerText="Выиграл 🎉";
-sound(500);
-}else{
-res.innerText="Проиграл";
-sound(150);
+  setTimeout(()=>{
+    if(winColor===selected){
+      balance+=bet*2;
+      result.innerText="ВЫИГРАЛ 🎉";
+    }else{
+      result.innerText="ПРОИГРАЛ ❌";
+    }
+    updateBalance();
+  },3000);
 }
 
-update();
-},4000);
+// crash
+let m=1,playing=false,points=[];
+const canvas=document.getElementById("canvas");
+const ctx=canvas.getContext("2d");
+
+function startCrash(){
+  let bet=+bet2.value;
+  if(balance<bet)return;
+
+  balance-=bet;
+  updateBalance();
+
+  m=1;
+  playing=true;
+  points=[];
+
+  let crashPoint=Math.random()*3+1;
+
+  let interval=setInterval(()=>{
+    if(!playing)return;
+
+    m+=0.04;
+    mult.innerText="x"+m.toFixed(2);
+    points.push(m);
+
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.beginPath();
+    ctx.strokeStyle="cyan";
+    ctx.lineWidth=2;
+
+    points.forEach((p,i)=>{
+      let x=i*4;
+      let y=canvas.height-p*30;
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    });
+
+    ctx.stroke();
+
+    if(m>=crashPoint){
+      playing=false;
+      mult.innerText="💥 CRASH";
+      sound.play();
+      clearInterval(interval);
+    }
+  },50);
 }
+
+function cashout(){
+  if(playing){
+    balance+=Math.floor(m*100);
+    playing=false;
+    updateBalance();
+  }
+}
+
+// авто ставка
+function autoBet(){
+  setInterval(()=>{
+    if(!playing) startCrash();
+  },2000);
+}
+
+// профиль
+function upload(){file.click();}
+function loadAvatar(e){
+  let r=new FileReader();
+  r.onload=()=>avatar.src=r.result;
+  r.readAsDataURL(e.target.files[0]);
+}
+
+const betInput=document.getElementById("bet");
+const bet2=document.getElementById("bet2");
+const result=document.getElementById("result");
+
+updateBalance();
 </script>
 
 </body>
