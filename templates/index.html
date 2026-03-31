@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Casino X PRO</title>
+<title>Casino X</title>
 
 <style>
 body{
   margin:0;
   font-family:Arial;
-  background: radial-gradient(circle at top, #0f172a, #020617);
+  background: radial-gradient(circle at top,#0b1220,#020617);
   color:white;
 }
 
@@ -22,7 +22,26 @@ body{
 
 .balance{
   color:#00f0ff;
-  font-size:18px;
+  font-weight:bold;
+}
+
+/* BUTTON */
+.btn{
+  padding:16px;
+  border-radius:15px;
+  border:none;
+  width:100%;
+  margin-top:10px;
+  background:linear-gradient(90deg,#6d5cff,#00f0ff);
+  color:white;
+  font-size:16px;
+  transition:.2s;
+  box-shadow:0 0 20px rgba(0,255,255,0.4);
+}
+
+.btn:active{
+  transform:scale(0.95);
+  box-shadow:0 0 5px cyan;
 }
 
 /* NAV */
@@ -36,23 +55,10 @@ body{
   padding:10px 0;
 }
 
-/* SCREEN */
 .screen{display:none;padding:15px;}
 .active{display:block;}
 
-.btn{
-  background:linear-gradient(90deg,#6d5cff,#00f0ff);
-  border:none;
-  padding:15px;
-  border-radius:15px;
-  color:white;
-  width:100%;
-  margin-top:10px;
-  font-size:16px;
-  box-shadow:0 0 15px rgba(0,255,255,0.3);
-}
-
-/* ROULETTE */
+/* ===== ROULETTE ===== */
 .wheel-wrap{
   position:relative;
   width:260px;
@@ -64,29 +70,47 @@ body{
   top:-10px;
   left:50%;
   transform:translateX(-50%);
-  font-size:30px;
+  font-size:26px;
 }
 
 .wheel{
   width:260px;
   height:260px;
   border-radius:50%;
-  transition:transform 3s cubic-bezier(.17,.67,.83,.67);
-  box-shadow:0 0 40px rgba(0,255,255,0.3);
+  transition:transform 4s cubic-bezier(.17,.67,.83,.67);
+  box-shadow:0 0 40px rgba(0,255,255,0.4);
 }
 
-/* CRASH */
+/* SELECT */
+.select{
+  display:flex;
+  gap:10px;
+  margin-top:15px;
+}
+
+.choice{
+  flex:1;
+  padding:12px;
+  border-radius:10px;
+  text-align:center;
+  border:2px solid white;
+}
+
+.activeChoice{
+  box-shadow:0 0 15px white;
+}
+
+/* ===== CRASH ===== */
 canvas{
   width:100%;
   height:200px;
-  background:#000;
+  background:black;
   border-radius:15px;
-  box-shadow:0 0 25px rgba(0,255,255,0.3);
 }
 
 #mult{
-  font-size:40px;
   text-align:center;
+  font-size:40px;
   color:#00f0ff;
 }
 
@@ -98,9 +122,8 @@ canvas{
   background:#222;
   margin:auto;
   overflow:hidden;
-  box-shadow:0 0 20px rgba(0,255,255,0.5);
+  box-shadow:0 0 25px cyan;
 }
-
 .avatar img{
   width:100%;
   height:100%;
@@ -120,7 +143,7 @@ input{
 <body>
 
 <div class="header">
-  <div>Casino PRO</div>
+  <div>Casino X</div>
   <div class="balance" id="balance">$1000</div>
 </div>
 
@@ -128,13 +151,13 @@ input{
 <div id="roulette" class="screen active">
 
 <div class="wheel-wrap">
-  <div class="pointer">▼</div>
-  <div class="wheel" id="wheel"></div>
+<div class="pointer">▼</div>
+<div class="wheel" id="wheel"></div>
 </div>
 
-<div style="display:flex;gap:10px;margin-top:15px;">
-<button onclick="pick('red')" style="flex:1;background:red;">RED</button>
-<button onclick="pick('black')" style="flex:1;background:black;">BLACK</button>
+<div class="select">
+<div id="redBtn" class="choice" style="background:red" onclick="pick('red')">RED</div>
+<div id="blackBtn" class="choice" style="background:black" onclick="pick('black')">BLACK</div>
 </div>
 
 <input id="bet" value="100">
@@ -150,17 +173,16 @@ input{
 <input id="bet2" value="100">
 <button class="btn" onclick="startCrash()">СТАРТ</button>
 <button class="btn" onclick="cashout()">ЗАБРАТЬ</button>
-<button class="btn" onclick="autoBet()">AUTO</button>
 </div>
 
 <!-- PROFILE -->
 <div id="profile" class="screen">
-<div class="avatar" onclick="upload()">
+<div class="avatar" onclick="file.click()">
 <img id="avatar">
 </div>
 <input type="file" id="file" style="display:none" onchange="loadAvatar(event)">
 <h2 style="text-align:center;">Игрок</h2>
-<p style="text-align:center;" id="bal2">$1000</p>
+<p style="text-align:center;" id="bal2"></p>
 </div>
 
 <div class="nav">
@@ -170,103 +192,94 @@ input{
 </div>
 
 <script>
-let balance = localStorage.getItem("bal") || 1000;
+let balance=1000;
 let selected="red";
-let sound=new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg");
-
-function updateBalance(){
-  balanceEl.innerText="$"+balance;
-  bal2.innerText="$"+balance;
-  localStorage.setItem("bal", balance);
-}
-
-const balanceEl=document.getElementById("balance");
-const bal2=document.getElementById("bal2");
-
-function show(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
-
-function pick(c){selected=c;}
-
-// рулетка
 const wheel=document.getElementById("wheel");
-let segments=20;
-let colors=[];
-for(let i=0;i<segments;i++){
+const colors=[];
+
+for(let i=0;i<20;i++){
   colors.push(i%2===0?"red":"black");
 }
-wheel.style.background="conic-gradient("+colors.map((c,i)=>c+" "+i*(360/segments)+"deg "+(i+1)*(360/segments)+"deg").join(",")+")";
+
+wheel.style.background="conic-gradient("+colors.map((c,i)=>c+" "+i*18+"deg "+(i+1)*18+"deg").join(",")+")";
+
+function update(){
+  balanceEl.innerText="$"+balance;
+  bal2.innerText="$"+balance;
+}
+
+function pick(c){
+  selected=c;
+  redBtn.classList.toggle("activeChoice",c==="red");
+  blackBtn.classList.toggle("activeChoice",c==="black");
+}
 
 function spin(){
   let bet=+betInput.value;
   if(balance<bet)return;
 
   balance-=bet;
-  updateBalance();
+  update();
 
-  let index=Math.floor(Math.random()*segments);
-  let winColor=colors[index];
+  let index=Math.floor(Math.random()*20);
+  let win=colors[index];
 
-  let deg=360*6+(360/segments)*index;
+  let deg=360*5+(index*18);
   wheel.style.transform="rotate(-"+deg+"deg)";
-  sound.play();
 
   setTimeout(()=>{
-    if(winColor===selected){
+    if(win===selected){
       balance+=bet*2;
-      result.innerText="ВЫИГРАЛ 🎉";
+      result.innerText="ВЫИГРАЛ";
     }else{
-      result.innerText="ПРОИГРАЛ ❌";
+      result.innerText="ПРОИГРАЛ";
     }
-    updateBalance();
-  },3000);
+    update();
+  },4000);
 }
 
-// crash
-let m=1,playing=false,points=[];
-const canvas=document.getElementById("canvas");
+/* CRASH */
+let m=1,playing=false;
 const ctx=canvas.getContext("2d");
+let points=[];
 
 function startCrash(){
   let bet=+bet2.value;
   if(balance<bet)return;
 
   balance-=bet;
-  updateBalance();
+  update();
 
   m=1;
   playing=true;
   points=[];
 
-  let crashPoint=Math.random()*3+1;
+  let crash=Math.random()*3+1;
 
-  let interval=setInterval(()=>{
+  let int=setInterval(()=>{
     if(!playing)return;
 
-    m+=0.04;
+    m+=0.05;
     mult.innerText="x"+m.toFixed(2);
     points.push(m);
 
     ctx.clearRect(0,0,canvas.width,canvas.height);
     ctx.beginPath();
     ctx.strokeStyle="cyan";
-    ctx.lineWidth=2;
+    ctx.lineWidth=3;
 
     points.forEach((p,i)=>{
       let x=i*4;
-      let y=canvas.height-p*30;
+      let y=canvas.height-p*25;
       i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
     });
 
     ctx.stroke();
 
-    if(m>=crashPoint){
+    if(m>=crash){
       playing=false;
       mult.innerText="💥 CRASH";
-      sound.play();
-      clearInterval(interval);
+      clearInterval(int);
     }
   },50);
 }
@@ -275,30 +288,28 @@ function cashout(){
   if(playing){
     balance+=Math.floor(m*100);
     playing=false;
-    updateBalance();
+    update();
   }
 }
 
-// авто ставка
-function autoBet(){
-  setInterval(()=>{
-    if(!playing) startCrash();
-  },2000);
+function show(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
 }
 
-// профиль
-function upload(){file.click();}
 function loadAvatar(e){
   let r=new FileReader();
   r.onload=()=>avatar.src=r.result;
   r.readAsDataURL(e.target.files[0]);
 }
 
+const balanceEl=document.getElementById("balance");
+const bal2=document.getElementById("bal2");
 const betInput=document.getElementById("bet");
 const bet2=document.getElementById("bet2");
 const result=document.getElementById("result");
 
-updateBalance();
+update();
 </script>
 
 </body>
